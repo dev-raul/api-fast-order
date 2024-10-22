@@ -4,28 +4,31 @@ import { JwtService } from '@nestjs/jwt';
 
 import { NotFoundError } from '@domain/value-objects/errors/not-found-error';
 
-import { UsersRepository } from '@infra/database/repositories/users.repository';
+import { EmployeesRepository } from '@infra/database/repositories/employee.repository';
 
-import { makeFakeUser } from '@test/factories/users.factory';
-import { InMemoryUsersRepository } from '@test/repositories/in-memory-users.repository';
+import { makeFakeEmployee } from '@test/factories/employees.factory';
+import { InMemoryEmloyeesRepository } from '@test/repositories/in-memory-employees.repository';
 
 import { UseCaseRefreshToken } from './refresh-token';
 
 describe('UseCaseRefreshToken', () => {
   let useCaseRefreshToken: UseCaseRefreshToken;
-  let userRepository: UsersRepository;
+  let employeeRepository: EmployeesRepository;
   let jwtService: JwtService;
 
-  const user = makeFakeUser({}, 1);
+  const employee = makeFakeEmployee({}, 1);
   const dataToken = {
     accessToken: 'ACCESS_TOKEN',
     refreshToken: 'REFRESH_TOKEN',
   };
 
   beforeEach(async () => {
-    userRepository = new InMemoryUsersRepository();
+    employeeRepository = new InMemoryEmloyeesRepository();
     jwtService = new JwtService();
-    useCaseRefreshToken = new UseCaseRefreshToken(userRepository, jwtService);
+    useCaseRefreshToken = new UseCaseRefreshToken(
+      employeeRepository,
+      jwtService,
+    );
   });
 
   it('should error to invalid refresh token', async () => {
@@ -37,9 +40,11 @@ describe('UseCaseRefreshToken', () => {
     ).rejects.toThrow(UnauthorizedException);
   });
 
-  it('should error to not found user', async () => {
-    jest.spyOn(jwtService, 'verifyAsync').mockResolvedValue({ sub: user.id });
-    jest.spyOn(userRepository, 'findById').mockResolvedValue(undefined);
+  it('should error to not found employee', async () => {
+    jest
+      .spyOn(jwtService, 'verifyAsync')
+      .mockResolvedValue({ sub: employee.id });
+    jest.spyOn(employeeRepository, 'findById').mockResolvedValue(undefined);
     await expect(
       useCaseRefreshToken.execute({
         refreshToken: 'CURRENT_REFRESH_TOKEN',
@@ -48,8 +53,10 @@ describe('UseCaseRefreshToken', () => {
   });
 
   it('should refresh token', async () => {
-    jest.spyOn(jwtService, 'verifyAsync').mockResolvedValue({ sub: user.id });
-    jest.spyOn(userRepository, 'findById').mockResolvedValue(user);
+    jest
+      .spyOn(jwtService, 'verifyAsync')
+      .mockResolvedValue({ sub: employee.id });
+    jest.spyOn(employeeRepository, 'findById').mockResolvedValue(employee);
     jest
       .spyOn(jwtService, 'signAsync')
       .mockResolvedValueOnce(dataToken.accessToken)
@@ -66,6 +73,6 @@ describe('UseCaseRefreshToken', () => {
         secret: JWT_REFRESH_TOKEN_SECRECT,
       },
     );
-    expect(userRepository.findById).toHaveBeenCalledWith(user.id);
+    expect(employeeRepository.findById).toHaveBeenCalledWith(employee.id);
   });
 });

@@ -6,15 +6,13 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { EncryptorService } from '@domain/services/encryptor/encriptor.service';
-import { Email } from '@domain/value-objects/email';
-import { EmailBadFormattedError } from '@domain/value-objects/errors/email-bad-formatted-error';
 import { InvalidCredentialError } from '@domain/value-objects/errors/invalid-credential-error';
 import { NotFoundError } from '@domain/value-objects/errors/not-found-error';
 
-import { UsersRepository } from '@infra/database/repositories/users.repository';
+import { EmployeesRepository } from '@infra/database/repositories/employee.repository';
 
 type UseCaseCreateSignInRequest = {
-  email: string;
+  cpf: string;
   password: string;
 };
 
@@ -26,38 +24,32 @@ type UseCaseCreateSignInResponse = {
 @Injectable()
 export class UseCaseCreateSignIn {
   constructor(
-    private userRepository: UsersRepository,
+    private employeeRepository: EmployeesRepository,
     private encryptorService: EncryptorService,
     private jwtService: JwtService,
   ) {}
   async execute({
-    email,
+    cpf,
     password,
   }: UseCaseCreateSignInRequest): Promise<UseCaseCreateSignInResponse> {
-    const isInvalidEmail = !Email.validate(email);
+    const employee = await this.employeeRepository.findByCpf(cpf);
 
-    if (isInvalidEmail) {
-      throw new EmailBadFormattedError(email);
-    }
-
-    const user = await this.userRepository.findByEmail(email);
-
-    if (!user) throw new NotFoundError('user');
+    if (!employee) throw new NotFoundError('employee');
 
     const isValidPassword = await this.encryptorService.compare(
       password,
-      user.password,
+      employee.password,
     );
 
     if (!isValidPassword) throw new InvalidCredentialError();
 
     const accessToken = await this.jwtService.signAsync({
-      sub: user.id,
+      sub: employee.id,
     });
 
     const refreshToken = await this.jwtService.signAsync(
       {
-        sub: user.id,
+        sub: employee.id,
       },
       {
         secret: JWT_REFRESH_TOKEN_SECRECT,

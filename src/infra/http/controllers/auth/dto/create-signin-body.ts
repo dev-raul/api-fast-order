@@ -4,7 +4,7 @@ import { IsNotEmpty } from 'class-validator';
 export class CreateSignInBody {
   @ApiProperty()
   @IsNotEmpty()
-  email: string;
+  cpf: string;
 
   @ApiProperty()
   @IsNotEmpty()

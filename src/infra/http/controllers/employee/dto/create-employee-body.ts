@@ -1,10 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 
-export class CreateUserBody {
+export class CreateEmployeeBody {
   @ApiProperty()
   @IsNotEmpty()
-  email: string;
+  name: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  cpf: string;
 
   @ApiProperty()
   @IsNotEmpty()

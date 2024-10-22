@@ -1,28 +1,30 @@
 import { Test } from '@nestjs/testing';
 
-import { UsersRepository } from '@infra/database/repositories/users.repository';
+import { EmployeesRepository } from '@infra/database/repositories/employee.repository';
 
-import { makeFakeUser } from '@test/factories/users.factory';
+import { makeFakeEmployee } from '@test/factories/employees.factory';
 
-import { UserMapper } from '../mappers/user.mapper';
+import { EmployeeMapper } from '../mappers/employee.mapper';
 import { PrismaService } from '../prisma.service';
-import { PrismaUsersRepository } from './prisma-users-repository';
+import { PrismaEmployeesRepository } from './prisma-employee-repository';
 
 jest.useFakeTimers({
   now: new Date('2023-02-25T16:33:55.016Z'),
 });
 
-describe('PrismaUsersRepository', () => {
+describe('PrismaEmployeesRepository', () => {
   let prismaService: PrismaService;
-  let usersRepository: UsersRepository;
+  let employeesRepository: EmployeesRepository;
 
-  const user = makeFakeUser({}, 1);
-  const userToDomain = {
+  const employee = makeFakeEmployee({}, 1);
+  const employeeToDomain = {
     id: 1,
-    email: user.email,
-    password: user.password,
-    created_at: user.createdAt,
-    updated_at: user.createdAt,
+    cpf: employee.cpf,
+    name: employee.name,
+    password: employee.password,
+    created_at: employee.createdAt,
+    updated_at: employee.createdAt,
+    deleted: false,
   };
 
   beforeEach(async () => {
@@ -30,59 +32,63 @@ describe('PrismaUsersRepository', () => {
       providers: [
         PrismaService,
         {
-          provide: UsersRepository,
-          useClass: PrismaUsersRepository,
+          provide: EmployeesRepository,
+          useClass: PrismaEmployeesRepository,
         },
       ],
     }).compile();
 
-    usersRepository = moduleRef.get<UsersRepository>(UsersRepository);
+    employeesRepository =
+      moduleRef.get<EmployeesRepository>(EmployeesRepository);
     prismaService = moduleRef.get<PrismaService>(PrismaService);
   });
 
-  it('should create user', async () => {
-    jest.spyOn(prismaService.user, 'create').mockResolvedValue(userToDomain);
-    const newUser = await usersRepository.create(user);
+  it('should create employee', async () => {
+    jest
+      .spyOn(prismaService.employee, 'create')
+      .mockResolvedValue(employeeToDomain);
+    const newEmployee = await employeesRepository.create(employee);
 
-    expect(prismaService.user.create).toHaveBeenCalledWith({
-      data: UserMapper.toPrisma(user),
+    expect(prismaService.employee.create).toHaveBeenCalledWith({
+      data: EmployeeMapper.toPrisma(employee),
     });
-    expect(newUser).toEqual(UserMapper.toDomain(userToDomain));
+    expect(newEmployee).toEqual(EmployeeMapper.toDomain(employeeToDomain));
   });
 
-  it('should get user by email', async () => {
-    jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue(null);
-    expect(await usersRepository.findByEmail(user.email)).toBeNull();
+  it('should get employee by cpf', async () => {
+    jest.spyOn(prismaService.employee, 'findUnique').mockResolvedValue(null);
+    expect(await employeesRepository.findByCpf(employee.cpf)).toBeNull();
 
-    expect(prismaService.user.findUnique).toHaveBeenCalledWith({
+    expect(prismaService.employee.findUnique).toHaveBeenCalledWith({
       where: {
-        email: user.email,
+        cpf: employee.cpf,
+        deleted: false,
       },
     });
 
     jest
-      .spyOn(prismaService.user, 'findUnique')
-      .mockResolvedValue(userToDomain);
-    expect(await usersRepository.findByEmail(user.email)).toEqual(
-      UserMapper.toDomain(userToDomain),
+      .spyOn(prismaService.employee, 'findUnique')
+      .mockResolvedValue(employeeToDomain);
+    expect(await employeesRepository.findByCpf(employee.cpf)).toEqual(
+      EmployeeMapper.toDomain(employeeToDomain),
     );
   });
 
-  it('should get user by id', async () => {
-    jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue(null);
-    expect(await usersRepository.findById(user.id)).toBeNull();
+  it('should get employee by id', async () => {
+    jest.spyOn(prismaService.employee, 'findUnique').mockResolvedValue(null);
+    expect(await employeesRepository.findById(employee.id)).toBeNull();
 
-    expect(prismaService.user.findUnique).toHaveBeenCalledWith({
+    expect(prismaService.employee.findUnique).toHaveBeenCalledWith({
       where: {
-        id: user.id,
+        id: employee.id,
       },
     });
 
     jest
-      .spyOn(prismaService.user, 'findUnique')
-      .mockResolvedValue(userToDomain);
-    expect(await usersRepository.findById(user.id)).toEqual(
-      UserMapper.toDomain(userToDomain),
+      .spyOn(prismaService.employee, 'findUnique')
+      .mockResolvedValue(employeeToDomain);
+    expect(await employeesRepository.findById(employee.id)).toEqual(
+      EmployeeMapper.toDomain(employeeToDomain),
     );
   });
 });

@@ -7,7 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 
 import { NotFoundError } from '@domain/value-objects/errors/not-found-error';
 
-import { UsersRepository } from '@infra/database/repositories/users.repository';
+import { EmployeesRepository } from '@infra/database/repositories/employee.repository';
 import { AuthUser } from '@infra/http/auth/auth-user';
 
 type UseCaseRefreshTokenRequest = {
@@ -22,7 +22,7 @@ type UseCaseRefreshTokenResponse = {
 @Injectable()
 export class UseCaseRefreshToken {
   constructor(
-    private userRepository: UsersRepository,
+    private employeeRepository: EmployeesRepository,
     private jwtService: JwtService,
   ) {}
   async execute({
@@ -37,16 +37,16 @@ export class UseCaseRefreshToken {
 
     if (!payload) throw new UnauthorizedException();
 
-    const user = await this.userRepository.findById(payload?.sub);
-    if (!user) throw new NotFoundError('user');
+    const employee = await this.employeeRepository.findById(payload?.sub);
+    if (!employee) throw new NotFoundError('employee');
 
     const accessToken = await this.jwtService.signAsync({
-      sub: user.id,
+      sub: employee.id,
     });
 
     const refreshToken = await this.jwtService.signAsync(
       {
-        sub: user.id,
+        sub: employee.id,
       },
       {
         secret: JWT_REFRESH_TOKEN_SECRECT,

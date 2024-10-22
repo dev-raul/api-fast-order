@@ -3,45 +3,48 @@ import { JwtService } from '@nestjs/jwt';
 import { EncryptorService } from '@domain/services/encryptor/encriptor.service';
 import { UseCaseCreateSignIn } from '@domain/use-cases/auth/create-signin';
 import { UseCaseRefreshToken } from '@domain/use-cases/auth/refresh-token';
-import { UseCaseGetUserById } from '@domain/use-cases/user/get-user-by-id';
+import { UseCaseGetEmployeeById } from '@domain/use-cases/employee/get-employee-by-id';
 
-import { UsersRepository } from '@infra/database/repositories/users.repository';
+import { EmployeesRepository } from '@infra/database/repositories/employee.repository';
 import { BcryptEncryptorService } from '@infra/http/services/encryptor/bcrypt-encriptor-service';
-import { UserViewModel } from '@infra/http/view-models/user-view-model';
+import { EmployeeViewModel } from '@infra/http/view-models/employee-view-model';
 
-import { makeFakeUser } from '@test/factories/users.factory';
-import { InMemoryUsersRepository } from '@test/repositories/in-memory-users.repository';
+import { makeFakeEmployee } from '@test/factories/employees.factory';
+import { InMemoryEmloyeesRepository } from '@test/repositories/in-memory-employees.repository';
 
 import { AuthController } from './auth.controller';
 
 describe('AuthController', () => {
   let useCaseCreateSignIn: UseCaseCreateSignIn;
-  let useCaseGetUserById: UseCaseGetUserById;
+  let useCaseGetEmployeeById: UseCaseGetEmployeeById;
   let useCaseRefreshToken: UseCaseRefreshToken;
 
-  let userRepository: UsersRepository;
+  let employeeRepository: EmployeesRepository;
 
   let jwtService: JwtService;
   let encryptorService: EncryptorService;
 
   let authController: AuthController;
 
-  const user = makeFakeUser({}, 1);
+  const employee = makeFakeEmployee({}, 1);
 
   beforeEach(async () => {
-    userRepository = new InMemoryUsersRepository();
+    employeeRepository = new InMemoryEmloyeesRepository();
     encryptorService = new BcryptEncryptorService();
     useCaseCreateSignIn = new UseCaseCreateSignIn(
-      userRepository,
+      employeeRepository,
       encryptorService,
       jwtService,
     );
-    useCaseRefreshToken = new UseCaseRefreshToken(userRepository, jwtService);
-    useCaseGetUserById = new UseCaseGetUserById(userRepository);
+    useCaseRefreshToken = new UseCaseRefreshToken(
+      employeeRepository,
+      jwtService,
+    );
+    useCaseGetEmployeeById = new UseCaseGetEmployeeById(employeeRepository);
     authController = new AuthController(
       useCaseCreateSignIn,
       useCaseRefreshToken,
-      useCaseGetUserById,
+      useCaseGetEmployeeById,
     );
   });
 
@@ -54,8 +57,8 @@ describe('AuthController', () => {
 
     expect(
       await authController.signIn({
-        email: user.email,
-        password: user.password,
+        cpf: employee.cpf,
+        password: employee.password,
       }),
     ).toEqual(tokenData);
   });
@@ -75,16 +78,16 @@ describe('AuthController', () => {
   });
 
   it('should get profile', async () => {
-    jest.spyOn(useCaseGetUserById, 'execute').mockResolvedValue(user);
+    jest.spyOn(useCaseGetEmployeeById, 'execute').mockResolvedValue(employee);
 
     expect(
       await authController.getProfile({
         user: {
-          sub: user?.id,
+          sub: employee?.id,
           exp: 0,
           iat: 0,
         },
       }),
-    ).toEqual(UserViewModel.toHttp(user));
+    ).toEqual(EmployeeViewModel.toHttp(employee));
   });
 });

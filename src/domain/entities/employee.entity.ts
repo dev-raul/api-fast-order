@@ -1,16 +1,22 @@
 import { Entity } from '@core/domain/Entity';
 import { Replace } from '@core/logic/Replace';
 
-export type UserProps = {
-  email: string;
+export type EmployeeProps = {
+  name: string;
+  cpf: string;
   password: string;
   createdAt: Date;
   updateAt: Date;
+  deleted?: boolean;
 };
 
-export class User extends Entity<UserProps> {
-  get email() {
-    return this.props.email;
+export class Employee extends Entity<EmployeeProps> {
+  get name() {
+    return this.props.name;
+  }
+
+  get cpf() {
+    return this.props.cpf;
   }
 
   get password() {
@@ -25,9 +31,13 @@ export class User extends Entity<UserProps> {
     return this.props.updateAt;
   }
 
+  get deleted() {
+    return this.props.deleted;
+  }
+
   static create(
     props: Replace<
-      UserProps,
+      EmployeeProps,
       {
         createdAt?: Date;
         updateAt?: Date;
@@ -35,7 +45,7 @@ export class User extends Entity<UserProps> {
     >,
     id?: number,
   ) {
-    const user = new User(
+    const employee = new Employee(
       {
         ...props,
         createdAt: props.createdAt ?? new Date(),
@@ -44,6 +54,6 @@ export class User extends Entity<UserProps> {
       id,
     );
 
-    return user;
+    return employee;
   }
 }

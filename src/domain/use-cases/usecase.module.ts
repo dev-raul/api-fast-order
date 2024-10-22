@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 
 import { UseCaseAuthModule } from './auth/usecase-auth.module';
-import { UseCaseUserModule } from './user/usecase-user.module';
+import { UseCaseEmployeeModule } from './employee/usecase-employee.module';
 
 @Module({
-  imports: [UseCaseAuthModule, UseCaseUserModule],
-  exports: [UseCaseAuthModule, UseCaseUserModule],
+  imports: [UseCaseAuthModule, UseCaseEmployeeModule],
+  exports: [UseCaseAuthModule, UseCaseEmployeeModule],
 })
 export class UseCaseModule {}
