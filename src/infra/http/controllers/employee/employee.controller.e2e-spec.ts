@@ -19,7 +19,7 @@ describe('EmployeeController (e2e)', () => {
   it('/employees (POST)', async () => {
     const requestBody = {
       name: faker.name.firstName(),
-      cpf: faker.internet.email(),
+      cpf: '802.033.830-60',
       password: faker.internet.password(),
     };
 

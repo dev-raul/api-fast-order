@@ -35,7 +35,7 @@ describe('AuthController (e2e)', () => {
 
   it('/auth/signin (POST)', async () => {
     const requestBody = {
-      cpf: faker.internet.email(),
+      cpf: '802.033.830-60',
       password: faker.internet.password(),
     };
 

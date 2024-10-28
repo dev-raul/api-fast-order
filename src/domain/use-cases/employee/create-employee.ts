@@ -2,7 +2,9 @@ import { Injectable } from '@nestjs/common';
 
 import { Employee } from '@domain/entities/employee.entity';
 import { EncryptorService } from '@domain/services/encryptor/encriptor.service';
+import { Cpf } from '@domain/value-objects/cpf';
 import { AlreadyExistError } from '@domain/value-objects/errors/already-exist-error';
+import { BadFormattedError } from '@domain/value-objects/errors/email-bad-formatted-error';
 
 import { EmployeesRepository } from '@infra/database/repositories/employee.repository';
 
@@ -21,6 +23,12 @@ export class UseCaseCreateEmployee {
     cpf,
     password: _password,
   }: UseCaseCreateEmployeeRequest): Promise<UseCaseCreateEmployeeResponse> {
+    const isInvalidCpf = !Cpf.validate(cpf);
+
+    if (isInvalidCpf) {
+      throw new BadFormattedError('cpf', cpf);
+    }
+
     const findEmployee = await this.employeesRepository.findByCpf(cpf);
     if (findEmployee) throw new AlreadyExistError('cpf', cpf);
 

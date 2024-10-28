@@ -6,6 +6,8 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { EncryptorService } from '@domain/services/encryptor/encriptor.service';
+import { Cpf } from '@domain/value-objects/cpf';
+import { BadFormattedError } from '@domain/value-objects/errors/email-bad-formatted-error';
 import { InvalidCredentialError } from '@domain/value-objects/errors/invalid-credential-error';
 import { NotFoundError } from '@domain/value-objects/errors/not-found-error';
 
@@ -32,6 +34,12 @@ export class UseCaseCreateSignIn {
     cpf,
     password,
   }: UseCaseCreateSignInRequest): Promise<UseCaseCreateSignInResponse> {
+    const isInvalidCpf = !Cpf.validate(cpf);
+
+    if (isInvalidCpf) {
+      throw new BadFormattedError('cpf', cpf);
+    }
+
     const employee = await this.employeeRepository.findByCpf(cpf);
 
     if (!employee) throw new NotFoundError('employee');

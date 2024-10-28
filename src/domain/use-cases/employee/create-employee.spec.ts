@@ -2,6 +2,7 @@ import faker from '@faker-js/faker';
 
 import { EncryptorService } from '@domain/services/encryptor/encriptor.service';
 import { AlreadyExistError } from '@domain/value-objects/errors/already-exist-error';
+import { BadFormattedError } from '@domain/value-objects/errors/email-bad-formatted-error';
 
 import { EmployeesRepository } from '@infra/database/repositories/employee.repository';
 import { BcryptEncryptorService } from '@infra/http/services/encryptor/bcrypt-encriptor-service';
@@ -23,6 +24,7 @@ describe('UseCaseCreateEmployee', () => {
   const employee = makeFakeEmployee(
     {
       password: 'HASH_PASSWORD',
+      cpf: '802.033.830-60',
     },
     1,
   );
@@ -36,16 +38,17 @@ describe('UseCaseCreateEmployee', () => {
     );
   });
 
-  // it('should error to email bad formated', async () => {
-  //   await expect(
-  //     useCaseCreateEmployee.execute({
-  //       email: 'invalid-email',
-  //       password: user.password,
-  //     }),
-  //   ).rejects.toThrow(EmailBadFormattedError);
-  // });
+  it('should error to cpf bad formated', async () => {
+    await expect(
+      useCaseCreateEmployee.execute({
+        cpf: '999999999999',
+        name: employee.name,
+        password: faker.internet.password(),
+      }),
+    ).rejects.toThrow(BadFormattedError);
+  });
 
-  it('should error to already exist employee', async () => {
+  it('should error to `a`lready exist employee', async () => {
     await employeeRepository.create(employee);
     await expect(
       useCaseCreateEmployee.execute({

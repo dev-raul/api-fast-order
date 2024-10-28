@@ -17,12 +17,12 @@ export class EmployeeViewModelResponse {
 }
 
 export class EmployeeViewModel {
-  static toHttp(user: Employee): EmployeeViewModelResponse {
+  static toHttp(employee: Employee): EmployeeViewModelResponse {
     return {
-      id: user?.id,
-      name: user.name,
-      cpf: user.cpf,
-      createdAt: user.createdAt,
+      id: employee?.id,
+      name: employee.name,
+      cpf: employee.cpf,
+      createdAt: employee.createdAt,
     };
   }
 }
