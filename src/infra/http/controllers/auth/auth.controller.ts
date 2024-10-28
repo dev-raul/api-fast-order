@@ -16,14 +16,14 @@ import {
 
 import { UseCaseCreateSignIn } from '@domain/use-cases/auth/create-signin';
 import { UseCaseRefreshToken } from '@domain/use-cases/auth/refresh-token';
-import { UseCaseGetUserById } from '@domain/use-cases/user/get-user-by-id';
+import { UseCaseGetEmployeeById } from '@domain/use-cases/employee/get-employee-by-id';
 
 import { RequestAuthUser } from '@infra/http/auth/auth-user';
 import { Public } from '@infra/http/auth/public';
 import {
-  UserViewModel,
-  UserViewModelResponse,
-} from '@infra/http/view-models/user-view-model';
+  EmployeeViewModel,
+  EmployeeViewModelResponse,
+} from '@infra/http/view-models/employee-view-model';
 
 import { CreateSignInBody } from './dto/create-signin-body';
 import { CreateSignInResponse } from './dto/create-signin-response';
@@ -35,10 +35,10 @@ export class AuthController {
   constructor(
     private useCaseCreateSignIn: UseCaseCreateSignIn,
     private useCaseRefreshToken: UseCaseRefreshToken,
-    private useCaseGetUserById: UseCaseGetUserById,
+    private useCaseGetEmployeeById: UseCaseGetEmployeeById,
   ) {}
 
-  @ApiOperation({ summary: 'Create user signin' })
+  @ApiOperation({ summary: 'Create employee signin' })
   @ApiResponse({
     type: CreateSignInResponse,
     status: HttpStatus.OK,
@@ -72,18 +72,20 @@ export class AuthController {
     return { accessToken, refreshToken };
   }
 
-  @ApiOperation({ summary: 'Get user by current session' })
+  @ApiOperation({ summary: 'Get employee by current session' })
   @Get('profile')
   @ApiResponse({
-    type: UserViewModelResponse,
+    type: EmployeeViewModelResponse,
     status: HttpStatus.OK,
   })
   @ApiBearerAuth()
   async getProfile(
     @Request() req: RequestAuthUser,
-  ): Promise<UserViewModelResponse> {
-    const user = await this.useCaseGetUserById.execute({ id: req.user.sub });
+  ): Promise<EmployeeViewModelResponse> {
+    const employee = await this.useCaseGetEmployeeById.execute({
+      id: req.user.sub,
+    });
 
-    return UserViewModel.toHttp(user);
+    return EmployeeViewModel.toHttp(employee);
   }
 }

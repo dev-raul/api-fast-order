@@ -4,7 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '@src';
 import * as request from 'supertest';
 
-describe('UserController (e2e)', () => {
+describe('EmployeeController (e2e)', () => {
   let app: INestApplication;
 
   beforeEach(async () => {
@@ -16,18 +16,19 @@ describe('UserController (e2e)', () => {
     await app.init();
   });
 
-  it('/users (POST)', async () => {
+  it('/employees (POST)', async () => {
     const requestBody = {
-      email: faker.internet.email(),
+      name: faker.name.firstName(),
+      cpf: '802.033.830-60',
       password: faker.internet.password(),
     };
 
     const response = await request(app.getHttpServer())
-      .post('/api/users')
+      .post('/api/employees')
       .send(requestBody);
 
     expect(response.status).toEqual(HttpStatus.CREATED);
     expect(response.body).toBeDefined();
-    expect(response.body?.user?.email).toEqual(requestBody?.email);
+    expect(response.body?.employee?.cpf).toEqual(requestBody?.cpf);
   });
 });

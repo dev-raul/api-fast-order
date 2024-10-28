@@ -9,24 +9,24 @@ import * as request from 'supertest';
 import { EncryptorService } from '@domain/services/encryptor/encriptor.service';
 
 import { DatabaseModule } from '@infra/database/database.module';
-import { UserViewModel } from '@infra/http/view-models/user-view-model';
+import { EmployeeViewModel } from '@infra/http/view-models/employee-view-model';
 
-import { UserFactory } from '@test/factories/users.factory';
+import { EmployeeFactory } from '@test/factories/employees.factory';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
-  let userFactory: UserFactory;
+  let employeeFactory: EmployeeFactory;
   let encryptorService: EncryptorService;
   let jwtService: JwtService;
 
   beforeEach(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [DatabaseModule, AppModule],
-      providers: [UserFactory],
+      providers: [EmployeeFactory],
     }).compile();
 
     app = moduleRef.createNestApplication();
-    userFactory = moduleRef.get(UserFactory);
+    employeeFactory = moduleRef.get(EmployeeFactory);
     encryptorService = moduleRef.get(EncryptorService);
     jwtService = moduleRef.get(JwtService);
 
@@ -35,12 +35,12 @@ describe('AuthController (e2e)', () => {
 
   it('/auth/signin (POST)', async () => {
     const requestBody = {
-      email: faker.internet.email(),
+      cpf: '802.033.830-60',
       password: faker.internet.password(),
     };
 
-    await userFactory.makeUser({
-      email: requestBody?.email,
+    await employeeFactory.makeEmployee({
+      cpf: requestBody?.cpf,
       password: await encryptorService.hash(requestBody?.password),
     });
 
@@ -55,14 +55,14 @@ describe('AuthController (e2e)', () => {
   });
 
   it('/auth/refresh (POST)', async () => {
-    const user = await userFactory.makeUser({
-      email: faker.internet.email(),
+    const employee = await employeeFactory.makeEmployee({
+      cpf: faker.internet.email(),
       password: await encryptorService.hash(faker.internet.password()),
     });
 
     const refreshToken = await jwtService.signAsync(
       {
-        sub: user.id,
+        sub: employee.id,
       },
       {
         secret: JWT_REFRESH_TOKEN_SECRECT,
@@ -82,14 +82,14 @@ describe('AuthController (e2e)', () => {
   });
 
   it('/auth/profile (GET)', async () => {
-    const user = await userFactory.makeUser({
-      email: faker.internet.email(),
+    const employee = await employeeFactory.makeEmployee({
+      cpf: faker.internet.email(),
       password: await encryptorService.hash(faker.internet.password()),
     });
-    const viewModelUser = UserViewModel.toHttp(user);
+    const viewModelEmployee = EmployeeViewModel.toHttp(employee);
 
     const accessToken = await jwtService.signAsync({
-      sub: user.id,
+      sub: employee.id,
     });
 
     const response = await request(app.getHttpServer())
@@ -100,7 +100,7 @@ describe('AuthController (e2e)', () => {
     expect(response.status).toEqual(HttpStatus.OK);
     expect(response.body).toBeDefined();
     expect(response.body).toMatchObject({
-      ...viewModelUser,
+      ...viewModelEmployee,
       createdAt: expect.any(String),
     });
   });

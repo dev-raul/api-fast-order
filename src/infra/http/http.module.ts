@@ -7,7 +7,7 @@ import { UseCaseModule } from '@domain/use-cases/usecase.module';
 import { DatabaseModule } from '@infra/database/database.module';
 
 import { AuthController } from './controllers/auth/auth.controller';
-import { UserController } from './controllers/user/user.controller';
+import { EmployeesController } from './controllers/employee/employee.controller';
 import { ServicesModule } from './services/services.module';
 
 @Module({
@@ -17,7 +17,7 @@ import { ServicesModule } from './services/services.module';
     UseCaseModule,
     JwtModule.register(jwtConfig),
   ],
-  controllers: [UserController, AuthController],
+  controllers: [EmployeesController, AuthController],
   providers: [],
   exports: [DatabaseModule, ServicesModule],
 })
