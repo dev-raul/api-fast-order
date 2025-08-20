@@ -32,7 +32,7 @@ jobs:
           sort_keys: false
 
       - name: Copy env
-        run: ls && cp .env.production dist
+        run: ls -a && cp .env.production dist
       
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
