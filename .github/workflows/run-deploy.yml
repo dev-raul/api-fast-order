@@ -27,13 +27,12 @@ jobs:
           envkey_ENV: "production"
           envkey_APP_NAME: "api-fast-order"
           envkey_JWT_SECRET: ${{ secrets.JWT_TEMPLATE_PUBLIC }}
-          directory: .
           file_name: .env.production
           fail_on_empty: false
           sort_keys: false
 
       - name: Copy env
-        run: cp .env.production dist
+        run: ls && cp .env.production dist
       
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -41,6 +40,7 @@ jobs:
             name: artifact
             path: |
               *
+              .env.production
               !src
               !test
               !node_modules
