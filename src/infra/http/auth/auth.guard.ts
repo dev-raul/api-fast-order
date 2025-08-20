@@ -1,4 +1,4 @@
-import { JWT_SECRECT } from '@config/jwt';
+import { JWT_SECRET } from '@config/jwt';
 import {
   CanActivate,
   ExecutionContext,
@@ -35,7 +35,7 @@ export class AuthGuard implements CanActivate {
     }
     try {
       const payload = await this.jwtService.verifyAsync<AuthUser>(token, {
-        secret: JWT_SECRECT,
+        secret: JWT_SECRET,
       });
       // 💡 We're assigning the payload to the request object here
       // so that we can access it in our route handlers
