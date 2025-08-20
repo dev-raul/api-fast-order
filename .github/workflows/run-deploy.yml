@@ -25,7 +25,7 @@ jobs:
           envkey_APP_NAME: "api-fast-order"
           envkey_JWT_SECRET: ${{ secrets.JWT_TEMPLATE_PUBLIC }}
           # directory: dist
-          file_name: .env
+          file_name: .env.production
           fail_on_empty: false
           sort_keys: false
 
