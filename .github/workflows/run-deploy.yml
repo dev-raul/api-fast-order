@@ -21,6 +21,16 @@ jobs:
 
       - name: Build
         run: yarn build
+
+      - name: Make envfile
+        uses: SpicyPizza/create-envfile@v2.0
+        with:
+          envkey_JWT_SECRET: ${{ secrets.JWT_TEMPLATE_PUBLIC }}
+          envkey_DB_URI: ${{ secrets.PROD_DB_URI }}
+          # directory: dist
+          file_name: .env
+          fail_on_empty: false
+          sort_keys: false
       
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
